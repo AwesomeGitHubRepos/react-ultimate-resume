@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useContext, useMemo } from 'react';
 
 import { FormattedMessage } from 'react-intl';
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { ProfileCardTitle } from '../../../../commons/profile_card/profile_card_title/profile_card_title';
 
@@ -15,7 +15,7 @@ import { DeveloperProfileContext } from '../../../../../utils/context/contexts';
 import { existsAndNotEmpty } from '../../../utils/exists_and_not_empty';
 import { NoProject } from './no_project/no_project';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const ProjectsBackComponent = ({ data, handleAddButtonClick }) => {
     const [variant] = useCardVariant();
@@ -28,9 +28,8 @@ const ProjectsBackComponent = ({ data, handleAddButtonClick }) => {
     const alt = data.projects?.[0]?.title;
 
     const handleProjectDeletion = useCallback(
-        (index) => {
-            const newProjects = [...data.projects];
-            newProjects.splice(index, 1);
+        (indexToDelete) => {
+            const newProjects = [...data.projects].filter(({ index }) => index !== indexToDelete);
             onEdit({ projects: newProjects });
         },
         [data, onEdit]
@@ -54,7 +53,12 @@ const ProjectsBackComponent = ({ data, handleAddButtonClick }) => {
             </ProfileCardTitle>
             <ProfileCardContent>
                 {data.projects?.map((project) => (
-                    <ProjectSection project={project} key={`project_${project.id}`} onDelete={handleProjectDeletion} />
+                    <ProjectSection
+                        project={project}
+                        key={`project_${project.id}`}
+                        onDelete={handleProjectDeletion}
+                        index={project.index}
+                    />
                 ))}
                 {!existsAndNotEmpty(data?.projects) && <NoProject handleAddButtonClick={handleAddButtonClick} />}
             </ProfileCardContent>

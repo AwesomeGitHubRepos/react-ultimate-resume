@@ -1,8 +1,8 @@
-const palettes = require('@welovedevs/ui/styles/palette');
+const {palette} = require('@welovedevs/ui');
 
 module.exports = {
     mode: 'jit',
-    content: ['./src/**/*.{js,jsx,ts,tsx}', './components/**/*.{js,jsx,ts,tsx}', './public/index.html'],
+    content: ['./src/package/**/*.{js,jsx,ts,tsx}'],
     theme: {
         extend: {
             screens: {
@@ -63,7 +63,7 @@ module.exports = {
                 reset: 'unset'
             },
             colors: {
-                ...palettes,
+                ...palette,
                 white: '#FFF',
                 black: '#000'
             }
@@ -71,6 +71,9 @@ module.exports = {
     },
     variants: {
         extend: {}
+    },
+    corePlugins: {
+        preflight: false
     },
     plugins: []
 };

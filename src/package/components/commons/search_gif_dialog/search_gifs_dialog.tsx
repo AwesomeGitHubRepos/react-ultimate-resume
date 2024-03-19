@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { FormattedMessage } from 'react-intl';
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 import { useDebounce } from 'use-debounce';
 
-import { Dialog, DialogActions, DialogContent, DialogProps } from '@material-ui/core';
+import { Dialog, DialogActions, DialogContent, DialogProps } from '@mui/material';
 import { Button, TextField, Tooltip, Typography } from '@welovedevs/ui';
 
 import { DialogTitle } from '../dialog/dialog_title/dialog_title';
@@ -14,7 +14,8 @@ import { useGiphyResults } from '../../hooks/giphy/use_giphy_results';
 import { styles } from './search_gifs_dialog_styles';
 import { GifAuthorCredits } from '../gifs/gif_author_credits/gif_author_credits';
 
-const useStyles = createUseStyles(styles);
+// @ts-ignore
+const useStyles = makeStyles(styles);
 
 type GiphySearchResult = {
     id: string;

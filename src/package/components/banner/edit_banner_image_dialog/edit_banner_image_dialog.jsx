@@ -1,11 +1,11 @@
 import React, { useCallback, useContext, useMemo } from 'react';
 
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 import { FormattedMessage } from 'react-intl';
 
 import { Button, Typography } from '@welovedevs/ui';
 
-import { Dialog, DialogContent, DialogActions } from '@material-ui/core';
+import { Dialog, DialogContent, DialogActions } from '@mui/material';
 
 import { DialogTitle } from '../../commons/dialog/dialog_title/dialog_title';
 import { DeveloperProfileContext, StaticDataContext } from '../../../utils/context/contexts';
@@ -18,7 +18,7 @@ import { useCallbackOpen } from '../../hooks/use_callback_open';
 import { styles } from './edit_banner_image_dialog_styles';
 import { URLFailoverField } from '../../commons/url_failover_field/url_failover_field';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const UnsplashButton = ({ setSearchUnsplashDialogOpened, hasUnsplashEndpoint }) => {
     const classes = useStyles();

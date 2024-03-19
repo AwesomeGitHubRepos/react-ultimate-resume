@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 import isArray from 'lodash/isArray';
 import mergeWith from 'lodash/mergeWith';
 import omit from 'lodash/omit';
@@ -9,12 +9,12 @@ import download from 'downloadjs';
 import { Button } from '@welovedevs/ui';
 
 import JsonStub from './data/json_stub.json';
-import DeveloperProfile from './package';
+import { DeveloperProfile } from './package';
 import { ReactComponent as SaveIcon } from './package/assets/icons/drop_file.svg';
 
 import { styles } from './app_styles';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 const mergeFunction = (objValue, srcValue) => {
     if (!objValue || isArray(objValue)) {
         return srcValue;
@@ -49,12 +49,12 @@ function App() {
 
     return (
         <DeveloperProfile
-            mode={mode}
+            mode={'edit'}
             data={data}
             onEdit={onEdit}
             onCustomizationChanged={onCustomizationChanged}
             options={{
-                locale: 'en',
+                locale: 'fr',
                 // side: 'back',
                 showContactInfos: false,
                 apiKeys: {
@@ -64,11 +64,13 @@ function App() {
                     devicons:
                         'https://firebasestorage.googleapis.com/v0/b/jechercheundev.appspot.com/o/technologies%2Ftechnologies_list.json?alt=media&token=459028ba-d9bc-4480-a3c4-88633afab7e2'
                 },
-                // showContactInfos: true,
-                // maxSkills: 6,
+                maxSkills: 6,
                 customization,
                 disableSortableExperience: false,
-                maxCardsPerRow: 3
+                maxCardsPerRow: 3,
+                referenceData: {
+                    professions: ['Developpeur Front-End', 'Développeur Back-End']
+                }
             }}
             additionalNodes={{
                 banner: {

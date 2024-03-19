@@ -1,6 +1,6 @@
 import React, { memo, useMemo, useRef } from 'react';
 
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 import { FormattedMessage, useIntl } from 'react-intl';
 
 import { List, ListItem, PopperCard, Typography } from '@welovedevs/ui';
@@ -17,13 +17,13 @@ import { DreamJobSalarySectionContent } from './dream_job_salary_section_content
 import { useOpenerState } from '../../../../hooks/use_opener_state';
 import { existsAndNotEmpty } from '../../../utils/exists_and_not_empty';
 
-import { REMOTE_FREQUENCY } from '../../../../../types/enums/remote/remote_utils';
+import { RemoteFrequenciesV2 } from '../../../../../types/enums/remote/remote_utils';
 import { remoteDisplayTranslations } from '../../../../../utils/enums_translations/remote_filter_translations';
 
 import { styles } from './dream_job_back_styles';
 import { hasOnlyFreelanceContract } from '../../../utils/has_only_freelance_contract';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const DreamJobBackComponent = ({ data }) => {
     const classes = useStyles();
@@ -91,9 +91,6 @@ const DreamJobBackComponent = ({ data }) => {
 
 const DreamJobLocations = ({ remoteFrequency, places, classes }) => {
     const { formatMessage } = useIntl();
-    if (remoteFrequency === REMOTE_FREQUENCY.FULL_TIME) {
-        return <FormattedMessage id="Dreamjob.Back.Location.RemoteOnly" defaultMessage="I want to work remotely" />;
-    }
 
     return (
         <>
@@ -101,10 +98,13 @@ const DreamJobLocations = ({ remoteFrequency, places, classes }) => {
                 <FormattedMessage id="Dreamjob.Back.Location.Title" defaultMessage="My dreamjob location" />
             </ProfileCardSectionTitle>
             <ProfileCardSectionText>
-                <DreamJobPlaces places={places} classes={classes} />
+                {remoteFrequency?.frequency &&
+                    formatMessage(
+                        remoteDisplayTranslations[remoteFrequency.frequency] || remoteDisplayTranslations.others,
+                        { daysPerWeek: remoteFrequency.daysPerWeek }
+                    )}
                 <br />
-                {remoteFrequency &&
-                    formatMessage(remoteDisplayTranslations[remoteFrequency] || remoteDisplayTranslations.others)}
+                <DreamJobPlaces places={places} classes={classes} />
             </ProfileCardSectionText>
         </>
     );
@@ -144,11 +144,11 @@ const DreamJobPlaces = ({ places = [], classes }) => {
                 open={open}
                 anchorElement={textAnchor.current}
                 popperProps={{
-                    modifiers: {
-                        preventOverflow: {
-                            boundariesElement: 'viewport'
+                    modifiers: [
+                        {
+                            name: 'preventOverflow'
                         }
-                    }
+                    ]
                 }}
             >
                 <List>

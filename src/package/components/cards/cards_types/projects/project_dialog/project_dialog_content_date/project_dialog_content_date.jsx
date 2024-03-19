@@ -1,17 +1,17 @@
 import React, { useCallback } from 'react';
 
-import { createUseStyles } from 'react-jss';
-
-import { MuiPickersUtilsProvider } from '@material-ui/pickers';
-
-import MomentUtils from '@date-io/moment';
+import makeStyles from '@mui/styles/makeStyles';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { Typography } from '@welovedevs/ui';
 import { useFormikContext } from 'formik';
 import { styles } from './project_dialog_content_date_styles';
 
 import { YearMonth } from '../../../../../commons/year_month/year_month';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 
-const useStyles = createUseStyles(styles);
+import { translations } from './project_dialog_content_date.translations';
+
+const useStyles = makeStyles(styles);
 
 const ProjectDialogContentDateComponent = ({ date, isEditing }) => {
     const classes = useStyles({ isEditing });
@@ -37,15 +37,17 @@ const DefaultContent = ({ date, classes }) => (
 
 const EditingContent = ({ classes }) => {
     const { setFieldValue, values, errors } = useFormikContext();
+
     const handleStartDate = useCallback(
         (value) => {
+            console.log('new date', value)
             setFieldValue('date', value);
         },
         [JSON.stringify(values)]
     );
     return (
         <>
-            <MuiPickersUtilsProvider utils={MomentUtils}>
+            <LocalizationProvider dateAdapter={AdapterMoment}>
                 <YearMonth
                     textfieldProps={{
                         fullWidth: true
@@ -54,9 +56,9 @@ const EditingContent = ({ classes }) => {
                     variant="flat"
                     value={values.date}
                     onChange={handleStartDate}
-                    title={{ id: 'Project.editDialog.date', defaultMessage: 'Project date' }}
+                    title={translations.projectDate}
                 />
-            </MuiPickersUtilsProvider>
+            </LocalizationProvider>
             {errors?.date && (
                 <Typography color="danger" variant="helper" component="p">
                     {errors.date}

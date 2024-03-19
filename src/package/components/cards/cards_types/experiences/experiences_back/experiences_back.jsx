@@ -1,7 +1,7 @@
 import React, { Fragment, memo, useMemo } from 'react';
 
 import { FormattedMessage, useIntl } from 'react-intl';
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { ProfileCardSection } from '../../../../commons/profile_card/profile_card_section/profile_card_section';
 import { ProfileCardSectionTitle } from '../../../../commons/profile_card/profile_card_section_title/profile_card_section_title';
@@ -16,7 +16,7 @@ import { existsAndNotEmpty } from '../../../utils/exists_and_not_empty';
 import { NoWork } from './no_work/no_work';
 import { useCustomization } from '../../../../hooks/use_customization';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const ExperienceContent = ({ experience, variant, classes }) => {
     const { formatMessage } = useIntl();
@@ -56,6 +56,7 @@ const ExperienceContent = ({ experience, variant, classes }) => {
         builder.push(dateString);
         return builder.map((value, index) => <Fragment key={`builder_part_${index}`}>{value}</Fragment>);
     }, [buildTitle, experience]);
+    
     return (
         <ProfileCardSection key={id} cardVariant={variant}>
             <ProfileCardSectionTitle>{position}</ProfileCardSectionTitle>
@@ -67,11 +68,12 @@ const ExperienceContent = ({ experience, variant, classes }) => {
 
 const Content = ({ data, handleAddButtonClick, classes }) => {
     const hasWork = useMemo(() => existsAndNotEmpty(data?.work), [data]);
-    const experiences = data.work?.filter(({ position, summary }) => Boolean(position && summary));
+    const experiences = data.work?.filter(({ position }) => Boolean(position ));
 
-    if (!hasWork) {
+    if (!hasWork || experiences?.length === 0) {
         return <NoWork {...{ handleAddButtonClick }} />;
     }
+
     return experiences.map((experience) => (
         <ExperienceContent key={`work_experience_${experience.id}`} experience={experience} classes={classes} />
     ));

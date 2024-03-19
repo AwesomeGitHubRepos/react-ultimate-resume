@@ -1,11 +1,13 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 
-import { createUseStyles, useTheme } from 'react-jss';
+import { useTheme } from '@mui/styles';
+import makeStyles from '@mui/styles/makeStyles';
+
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Card } from '@welovedevs/ui';
 
-import { useMediaQuery } from '@material-ui/core';
+import { useMediaQuery } from '@mui/material';
 
 import { ProfileCardSide } from './profile_card_side/profile_card_side';
 import { ProfileCardEditButton } from './profile_card_edit_button/profile_card_edit_button';
@@ -26,7 +28,7 @@ import { SIDES } from './profile_card_side/side';
 import { styles } from './profile_card_styles';
 import { OPACITY_TRANSITIONS } from '../../../utils/framer_motion/common_transitions/opacity_transitions';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 export const ProfileCardContext = createContext({});
 
@@ -52,7 +54,6 @@ export const ProfileCard = ({
         defaultMatches: true
     });
 
-    const [containerElement, setContainerElement] = useState();
     const containerReference = useRef();
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [forceOpenEditDialog, setForceOpenEditDialog] = useState(false);
@@ -105,10 +106,6 @@ export const ProfileCard = ({
         },
         [isSmall]
     );
-
-    useEffect(() => {
-        setContainerElement(containerReference.current);
-    }, []);
 
     const setSide = useCallback(
         (newSide) => {
@@ -164,7 +161,7 @@ export const ProfileCard = ({
                     />
                 </ProfileCardContext.Provider>
             )}
-            <ProfileCardIncompletePopper open={isComplete !== true} anchorElement={containerElement} />
+            <ProfileCardIncompletePopper open={isComplete !== true} anchorElement={containerReference.current} />
             <Card
                 containerRef={containerReference}
                 classes={{ container: classes.container }}

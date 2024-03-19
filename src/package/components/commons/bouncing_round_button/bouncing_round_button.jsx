@@ -1,7 +1,7 @@
 import React from 'react';
 
 import cn from 'classnames';
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 import { motion } from 'framer-motion';
 
 import { Tooltip } from '@welovedevs/ui';
@@ -12,14 +12,15 @@ import { TRANSITION_PROPS } from './bouncing_round_button_props';
 
 import { styles } from './bouncing_round_button_styles';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const BouncingRoundButtonComponent = ({
     title = 'Click me!',
     tooltipPlacement = 'top',
     onClick,
     icon: Icon = EditIcon,
-    classes: receivedClasses = {}
+    classes: receivedClasses = {},
+    ...others
 }) => {
     const classes = useStyles();
 
@@ -32,6 +33,7 @@ const BouncingRoundButtonComponent = ({
                 variants={TRANSITION_PROPS}
                 initial="default"
                 whileTap="active"
+                {...others}
             >
                 <Icon className={cn(classes.icon, classes.iconContainer)} />
             </motion.button>

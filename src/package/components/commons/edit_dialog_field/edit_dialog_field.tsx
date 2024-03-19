@@ -1,14 +1,15 @@
 import React from 'react';
 
 import cn from 'classnames';
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 import { FormattedMessage } from 'react-intl';
 
 import { Typography } from '@welovedevs/ui';
 
 import { styles } from './edit_dialog_field_styles';
 
-const useStyles = createUseStyles(styles);
+// @ts-ignore
+const useStyles = makeStyles(styles);
 
 export const EditDialogField: React.FC<{
     title?: React.ReactElement;
@@ -23,16 +24,19 @@ export const EditDialogField: React.FC<{
     const classes = useStyles() as any;
     return (
         <div className={cn(classes.container, receivedClasses.container)}>
-            {title && (
-                <Typography classes={{ container: classes.title }} component="h3" variant="h4" color="dark">
-                    {title}
-                </Typography>
-            )}
-            {subtitle && (
-                <Typography classes={{ container: classes.subtitle }} component="p" variant="body2" color="dark">
-                    {subtitle}
-                </Typography>
-            )}
+            <div className="ds-flex ds-flex-col flex-1">
+                {title && (
+                    <Typography classes={{ container: classes.title }} component="h3" variant="h4" color="dark">
+                        {title}
+                    </Typography>
+                )}
+                {subtitle && (
+                    <Typography classes={{ container: classes.subtitle }} component="p" variant="body2" color="dark">
+                        {subtitle}
+                    </Typography>
+                )}
+            </div>
+
             <div className={cn(classes.componentErrorContainer, receivedClasses.componentErrorContainer)}>
                 <div className={cn(classes.component, receivedClasses.component)}>{children}</div>
                 {error && (

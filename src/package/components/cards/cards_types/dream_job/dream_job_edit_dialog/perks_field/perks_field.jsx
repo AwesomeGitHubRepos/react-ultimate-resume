@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import cn from 'classnames';
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { FormattedMessage, useIntl } from 'react-intl';
 import { TextField, Typography } from '@welovedevs/ui';
 import { CheckboxGroup } from '../../../../../commons/checkbox_group/checkbox_group';
 import { CheckboxField } from '../../../../../commons/checkbox_field/checkbox_group';
-import { JobPerksEnum } from '../../../../../../types/enums/job_perks/job_perks_utils';
+import { JobPerks as JobPerksEnum } from '../../../../../../types/enums/job_perks/job_perks_utils';
 import { EditDialogField } from '../../../../../commons/edit_dialog_field/edit_dialog_field';
 
 import { jobPerksTranslations } from '../../../../../../utils/enums_translations/job_perks_translations';
@@ -18,7 +18,7 @@ import { styles } from './perks_field_styles';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DEFAULT_SPRING_TYPE as spring } from '../../../../../../utils/framer_motion/common_types/spring_type';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const checkboxGroupPerks = Object.values(JobPerksEnum).filter((perk) => perk !== JobPerksEnum.OTHER);
 

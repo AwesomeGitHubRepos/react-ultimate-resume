@@ -2,19 +2,19 @@ import mergeWith from 'lodash/mergeWith';
 import merge from 'lodash/merge';
 import cloneDeep from 'lodash/cloneDeep';
 import isArray from 'lodash/isArray';
-import DESIGN_SYSTEM_DEFAULT_PALETTE from '@welovedevs/ui/styles/palettes';
+import { palette } from '@welovedevs/ui';
 
 import { THEME_SCHEMA } from './theme_schema';
 import { transformTheme } from './theme_transforms';
 
-const DEFAULT_PALETTE = cloneDeep(DESIGN_SYSTEM_DEFAULT_PALETTE);
+const DEFAULT_PALETTE = cloneDeep(palette);
 
 export const DEFAULT_THEME = {
     palette: DEFAULT_PALETTE,
     miscellaneous: {
         backgroundColor: DEFAULT_PALETTE.dark[50],
         color: DEFAULT_PALETTE.dark[500],
-        fontFamily: ['Avenir Next', 'Open Sans', 'Roboto', 'Arial'],
+        fontFamily: ['Plus Jakarta Sans', 'Open Sans', 'Roboto', 'Arial'],
         spacing: 8
     },
     screenSizes: {

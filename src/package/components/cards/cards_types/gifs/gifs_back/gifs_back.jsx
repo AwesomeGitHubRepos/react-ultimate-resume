@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
 
 import cn from 'classnames';
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 import Slider from 'react-slick';
 
 import { Typography } from '@welovedevs/ui';
@@ -20,7 +20,7 @@ import { NoHobby } from './no_hobby/no_hobby';
 import { AnimatePresence, motion } from 'framer-motion';
 import { DEFAULT_SPRING_TYPE as spring } from '../../../../../utils/framer_motion/common_types/spring_type';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const SETTINGS = {
     arrows: true,
@@ -44,12 +44,6 @@ const GifsBackComponent = ({ data, handleAddButtonClick }) => {
         setCurrentIndex(next);
     }, []);
 
-    const sliderReference = useRef();
-
-    const pauseSlider = useCallback(() => sliderReference.current?.slickPause(), []);
-
-    const resumeSlider = useCallback(() => sliderReference.current?.slickPlay(), []);
-
     return (
         <GifsSidesCommons
             classes={{ credits: classes.credits }}
@@ -57,7 +51,6 @@ const GifsBackComponent = ({ data, handleAddButtonClick }) => {
                 <div className={classes.slidesContainer}>
                     <Slider
                         {...SETTINGS}
-                        ref={sliderReference}
                         beforeChange={handleBeforeChange}
                         prevArrow={<Arrow classes={classes} arrowRole="prev" />}
                         nextArrow={
@@ -73,13 +66,17 @@ const GifsBackComponent = ({ data, handleAddButtonClick }) => {
             gifUser={data.interests?.[currentIndex]?.gifUser}
         >
             <Content
-                {...{ data, previousIndex, currentIndex, pauseSlider, resumeSlider, handleAddButtonClick, classes }}
+                classes={classes}
+                data={data}
+                previousIndex={previousIndex}
+                currentIndex={currentIndex}
+                handleAddButtonClick={handleAddButtonClick}
             />
         </GifsSidesCommons>
     );
 };
 
-const Content = ({ data, pauseSlider, previousIndex, currentIndex, resumeSlider, handleAddButtonClick, classes }) => {
+const Content = ({ data, previousIndex, currentIndex, handleAddButtonClick, classes }) => {
     const hasHobby = useMemo(() => existsAndNotEmpty(data?.interests), [data]);
 
     const item = data.interests?.[currentIndex];
@@ -112,8 +109,6 @@ const Content = ({ data, pauseSlider, previousIndex, currentIndex, resumeSlider,
                 key={item.id || `${new Date().getTime()}`} // mandatory for AnimatePresence (we need to create a new component when item change)
                 item={item}
                 classes={classes}
-                pauseSlider={pauseSlider}
-                resumeSlider={resumeSlider}
                 motionConfig={{
                     variants: GIFS_BACK_TRANSITIONS_PROPS,
                     ...animationState,
@@ -142,7 +137,7 @@ const Arrow = ({ classes, onClick, arrowRole }) => (
 
 const SlideItem = ({ gifUrl, name, classes }) => {
     if (!gifUrl) {
-        return <div className={classes.solidBackground} />;
+        return <div />;
     }
     return (
         <>
@@ -151,15 +146,10 @@ const SlideItem = ({ gifUrl, name, classes }) => {
     );
 };
 
-const TransitioningItem = ({ item, pauseSlider, resumeSlider, classes, motionConfig }) => {
+const TransitioningItem = ({ item, classes, motionConfig }) => {
     return (
         <AnimatePresence>
-            <motion.div
-                {...motionConfig}
-                className={classes.transitioningItemWithoutGif}
-                onMouseEnter={pauseSlider}
-                onMouseLeave={resumeSlider}
-            >
+            <motion.div {...motionConfig} className={classes.transitioningItemWithoutGif}>
                 {!item?.gifUrl ? (
                     <Typography
                         classes={{

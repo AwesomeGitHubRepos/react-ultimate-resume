@@ -1,6 +1,8 @@
 import React, { useCallback, useMemo, useReducer, useState } from 'react';
 import { injectIntl, IntlProvider } from 'react-intl';
-import { createUseStyles, ThemeProvider } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
+
+import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
@@ -14,9 +16,8 @@ import { styles } from './profile_styles';
 import en from '../i18n/en.json';
 import fr from '../i18n/fr.json';
 import tr from '../i18n/tr.json';
+import '../styles/tailwind.css';
 
-import '../styles/lib/slick-carousel/slick-theme.css';
-import '../styles/lib/slick-carousel/slick.css';
 import { technologiesInitialState, technologiesReducer } from '../store/technologies/technologies_reducer';
 import { DeveloperProfileContext, StaticDataContext, StoreContext } from '../utils/context/contexts';
 import { mergeOmitNull } from '../utils/data_utils';
@@ -36,7 +37,7 @@ const messages = {
     fr,
     tr
 };
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const DEFAULT_OPTIONS = {
     locale: 'en',
@@ -96,7 +97,8 @@ const DeveloperProfileComponent = ({
                 showContactInfos: options?.showContactInfos,
                 maxSkills: options?.maxSkills,
                 disableSortableExperience: options?.disableSortableExperience
-            }
+            },
+            referenceData: options?.referenceData
         }),
         [apiKeys, endpoints, additionalNodes, receivedGlobalClasses, JSON.stringify(options?.customization)]
     );
@@ -161,26 +163,28 @@ const WithProvidersDeveloperProfile = ({
     const builtTheme = useMemo(() => buildTheme(customization?.theme), [customization?.theme]);
 
     const providerMessages = useMemo(
-        () => ({ ...(parentIntl?.messages || {}), ...(messages[locale] || messages.en) }),
+        () => ({ ...(messages[locale] || messages.en), ...(parentIntl?.messages || {}) }),
         [parentIntl, locale]
     );
 
     return (
-        <ThemeProvider theme={builtTheme}>
-            <IntlProvider locale={locale} messages={providerMessages} defaultLocale={locale}>
-                <DeveloperProfileComponent
-                    data={data}
-                    mode={mode}
-                    onEdit={onEdit}
-                    onCustomizationChanged={onCustomizationChanged}
-                    onIsEditingChanged={onIsEditingChanged}
-                    options={mergedOptions}
-                    additionalNodes={additionalNodes}
-                    onFilesUpload={onFilesUpload}
-                    classes={classes}
-                />
-            </IntlProvider>
-        </ThemeProvider>
+        <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={builtTheme}>
+                <IntlProvider locale={locale} messages={providerMessages} defaultLocale={locale}>
+                    <DeveloperProfileComponent
+                        data={data}
+                        mode={mode}
+                        onEdit={onEdit}
+                        onCustomizationChanged={onCustomizationChanged}
+                        onIsEditingChanged={onIsEditingChanged}
+                        options={mergedOptions}
+                        additionalNodes={additionalNodes}
+                        onFilesUpload={onFilesUpload}
+                        classes={classes}
+                    />
+                </IntlProvider>
+            </ThemeProvider>
+        </StyledEngineProvider>
     );
 };
 

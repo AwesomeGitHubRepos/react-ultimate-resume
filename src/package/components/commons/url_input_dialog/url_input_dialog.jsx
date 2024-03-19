@@ -1,17 +1,17 @@
 import React, { useCallback, useState } from 'react';
 
 import { FormattedMessage } from 'react-intl';
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { Button, TextField } from '@welovedevs/ui';
 
-import { Dialog, DialogActions, DialogContent } from '@material-ui/core';
+import { Dialog, DialogActions, DialogContent } from '@mui/material';
 
 import { DialogTitle } from '../dialog/dialog_title/dialog_title';
 
 import { styles } from './url_input_dialog_styles';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const UrlInputDialogComponent = ({ open, onClose, onConfirm }) => {
     const classes = useStyles();

@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react';
 
 import { FormattedMessage } from 'react-intl';
-import { createUseStyles, useTheme } from 'react-jss';
+import { useTheme } from "@mui/styles";
+import makeStyles from '@mui/styles/makeStyles';
+
 import { motion } from 'framer-motion';
 
-import { Typography } from '@welovedevs/ui/typography/typography';
+import { Typography } from '@welovedevs/ui';
 
 import OtherSkillProgress from '../other_skill_progress/other_skill_progress';
 import { getColorsFromCardVariant } from '../../../../../../utils/styles/styles_utils';
@@ -14,7 +16,7 @@ import { useCardVariant } from '../../../../../hooks/profile_card_hooks/use_card
 import { styles } from './other_skills_styles';
 import { DEFAULT_SPRING_TYPE as spring } from '../../../../../../utils/framer_motion/common_types/spring_type';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const OtherSkills = ({ motionProps, othersSkills }) => {
     const [variant] = useCardVariant();

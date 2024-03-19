@@ -1,14 +1,14 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 
-import { createUseStyles, useTheme } from 'react-jss';
+import { useTheme } from "@mui/styles";
+import makeStyles from '@mui/styles/makeStyles';
 import { useFormikContext } from 'formik';
 import keyBy from 'lodash/keyBy';
 
 import omit from 'lodash/omit';
 import uuid from 'uuid/v4';
-import { arrayMove } from 'react-sortable-hoc';
 
-import useMediaQuery from '@material-ui/core/useMediaQuery/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { Typography } from '@welovedevs/ui';
 
 import { SearchGifsDialog } from '../../../../../commons/search_gif_dialog/search_gifs_dialog';
@@ -18,8 +18,9 @@ import { GifsSortableCards } from './gifs_sortable_cards/gifs_sortable_cards';
 import { styles } from './gifs_edit_form_styles';
 import { StaticDataContext } from '../../../../../../utils/context/contexts';
 import { URLFallbackDialog } from '../../../../../commons/url_fallback_dialog.jsx/url_fallback_dialog';
+import { arrayMove } from "@dnd-kit/sortable";
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const GifsEditFormComponent = ({ helpers: { handleValueChange } }) => {
     const theme = useTheme();

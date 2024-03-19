@@ -1,12 +1,14 @@
-import React, { useCallback, useContext, useMemo, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useRef } from 'react';
 
-import { createUseStyles, useTheme } from 'react-jss';
+import { useTheme } from '@mui/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { useDebounce } from 'use-debounce';
 
 import { PopperCard, Checkbox } from '@welovedevs/ui';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 import { PaletteVisual } from '../palette_visual/palette_visual';
-import { Context } from '../card_orderer/cards_orderer';
 import { ReactComponent as BasicsSvg } from '../../../../../assets/cards/basics.svg';
 import { ReactComponent as HobbiesSvg } from '../../../../../assets/cards/hobbies.svg';
 import { ReactComponent as InterestedBySvg } from '../../../../../assets/cards/interested_by.svg';
@@ -25,7 +27,9 @@ import { CARD_STUB_TRANSLATIONS } from './card_stub_translations';
 
 import { styles } from './card_stub_styles';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
+
+export const Context = createContext({});
 
 const CARD_TYPE_MAPPING = {
     basics: BasicsSvg,
@@ -42,11 +46,17 @@ const CARD_TYPE_MAPPING = {
 };
 
 const CardStubComponent = ({ data: { type, variant }, cardIndex, onItemChanged }) => {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: type });
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition
+    };
+
     const classes = useStyles({ variant });
     const [openPopperCard, handlers] = useOpenerState();
     const [debouncedOpenPopperCard] = useDebounce(openPopperCard, openPopperCard ? 300 : 0);
-    const containerReference = useRef();
     const { isSorting } = useContext(Context);
+    const containerReference = useRef();
 
     const Component = useMemo(() => CARD_TYPE_MAPPING[type] ?? (() => null), []);
 
@@ -58,8 +68,8 @@ const CardStubComponent = ({ data: { type, variant }, cardIndex, onItemChanged }
     );
 
     return (
-        <div className={classes.container} ref={containerReference} {...handlers}>
-            <Component className={classes.card} />
+        <div ref={setNodeRef} style={style} className={classes.container} {...handlers}>
+            <Component className={classes.card} ref={containerReference} {...attributes} {...listeners} />
             <PopperCard
                 open={!isSorting && debouncedOpenPopperCard}
                 anchorElement={containerReference.current}

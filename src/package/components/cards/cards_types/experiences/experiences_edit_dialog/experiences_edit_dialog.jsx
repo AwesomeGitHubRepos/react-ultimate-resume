@@ -1,17 +1,28 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
 import cn from 'classnames';
-import { createUseStyles, useTheme } from 'react-jss';
+import { useTheme } from '@mui/styles';
+import makeStyles from '@mui/styles/makeStyles';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Twemoji } from 'react-emoji-render';
-import { arrayMove, SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
+
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
 import { useFormikContext } from 'formik';
 import moment from 'moment';
 import keyBy from 'lodash/keyBy';
 import uuid from 'uuid/v4';
 
-import useMediaQuery from '@material-ui/core/useMediaQuery/useMediaQuery';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { Checkbox, List, ListItem, TextField, Tooltip, Typography } from '@welovedevs/ui';
 
 import { EditDialog } from '../../../../commons/edit_dialog/edit_dialog';
@@ -30,13 +41,7 @@ import { styles } from './experiences_edit_dialog_styles';
 import { useOptions } from '../../../../hooks/use_options';
 import { DEFAULT_SPRING_TYPE as spring } from '../../../../../utils/framer_motion/common_types/spring_type';
 
-const useStyles = createUseStyles(styles);
-
-const DragHandle = SortableHandle(({ classes }) => (
-    <button className={classes.dragHandleButton} type="button">
-        <MoveIcon className={classes.dragHandle} />
-    </button>
-));
+const useStyles = makeStyles(styles);
 
 const ExperiencesEditDialogComponent = ({ open, onClose, data, onEdit, validationSchema, isEditing }) => {
     const { formatMessage } = useIntl();
@@ -56,6 +61,9 @@ const ExperiencesEditDialogComponent = ({ open, onClose, data, onEdit, validatio
                     defaultMessage="Edit your professional experiences?"
                 />
             }
+            classes={{
+                paper: 'w-[90vw] min-w-[300px] !max-w-[1280px]'
+            }}
         >
             {(helpers) => <ExperiencesEditFormWrapper helpers={helpers} />}
         </EditDialog>
@@ -133,91 +141,93 @@ const JobTitle = ({ experience }) => {
     return title;
 };
 
-const ExperienceItem = SortableElement(
-    ({
-        id,
-        experience,
-        onChange,
-        onRemove,
-        error: fieldErrors,
-        folded,
-        toggleFold,
-        classes,
-        experienceIndex: index
-    }) => {
-        const { formatMessage } = useIntl();
-        const theme = useTheme();
-        const isMobile = useMediaQuery(`(max-width: ${theme.screenSizes.small}px)`);
-        const [disableSortableExperience] = useOptions('disableSortableExperience', false);
+const ExperienceItem = ({
+    id,
+    experience,
+    onChange,
+    onRemove,
+    error: fieldErrors,
+    folded,
+    toggleFold,
+    classes,
+    experienceIndex: index
+}) => {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition
+    };
 
-        const dragHandle = useMemo(() => {
-            if (disableSortableExperience) {
-                return null;
-            }
+    const { formatMessage } = useIntl();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(`(max-width: ${theme.screenSizes.small}px)`);
+    const [disableSortableExperience] = useOptions('disableSortableExperience', false);
 
-            return (
-                <>
-                    <DragHandle classes={classes} />
-                    <div className={classes.divider} />
-                </>
-            );
-        }, [disableSortableExperience]);
-        const hasError = Boolean(fieldErrors);
+    const dragHandle = useMemo(() => {
+        if (disableSortableExperience) {
+            return null;
+        }
+
         return (
-            <div className={classes.experience}>
-                <div className={classes.smallItemContainer}>
-                    {dragHandle}
-                    <Tooltip title={<FormattedMessage id="Main.lang.delete" defaultMessage="Delete" />}>
-                        <button className={classes.removeButton} type="button" onClick={onRemove(id)}>
-                            <DeleteIcon className={classes.removeIcon} />
-                        </button>
-                    </Tooltip>
-                    {!isMobile && <div className={classes.divider} />}
-                    <ListItem
-                        button
-                        className={cn(classes.listItem, hasError && classes.listItemError)}
-                        onClick={() => toggleFold(!folded)}
-                    >
-                        <motion.div
-                            className={classes.arrowContainer}
-                            animate={{
-                                transform: `rotate(${folded ? -90 : 0}deg)`
-                            }}
-                        >
-                            <ArrowIcon className={cn('refinement-arrow')} />
-                        </motion.div>
-                        {hasError && <Twemoji className={classes.warningIcon} svg text="⚠️" />}
-                        <Typography className={classes.smallTitle} color="dark">
-                            <JobTitle {...{ experience }} />
-                        </Typography>
-                    </ListItem>
-                </div>
-                <AnimatePresence>
-                    {!folded && (
-                        <motion.div
-                            variants={EXPERIENCE_CONTENT_TRANSITION_PROPS}
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            transition={spring}
-                        >
-                            <ContentFields
-                                fieldErrors={fieldErrors}
-                                id={id}
-                                formatMessage={formatMessage}
-                                experience={experience}
-                                onChange={onChange}
-                                classes={classes}
-                                index={index}
-                            />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
+            <>
+                <button {...attributes} {...listeners} className={classes.dragHandleButton} type="button">
+                    <MoveIcon className={classes.dragHandle} />
+                </button>
+                <div className={classes.divider} />
+            </>
         );
-    }
-);
-
+    }, [disableSortableExperience]);
+    const hasError = Boolean(fieldErrors);
+    return (
+        <div className={classes.experience} ref={setNodeRef} style={style}>
+            <div className={classes.smallItemContainer}>
+                {dragHandle}
+                <Tooltip title={<FormattedMessage id="Main.lang.delete" defaultMessage="Delete" />}>
+                    <button className={classes.removeButton} type="button" onClick={onRemove(id)}>
+                        <DeleteIcon className={classes.removeIcon} />
+                    </button>
+                </Tooltip>
+                {!isMobile && <div className={classes.divider} />}
+                <ListItem
+                    button
+                    className={cn(classes.listItem, hasError && classes.listItemError)}
+                    onClick={() => toggleFold(!folded)}
+                >
+                    <motion.div
+                        className={classes.arrowContainer}
+                        animate={{
+                            transform: `rotate(${folded ? -90 : 0}deg)`
+                        }}
+                    >
+                        <ArrowIcon className={cn('refinement-arrow')} />
+                    </motion.div>
+                    {hasError && (
+                        <Twemoji
+                            options={{ baseUrl: '//cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/' }}
+                            className={classes.warningIcon}
+                            svg
+                            text="⚠️"
+                        />
+                    )}
+                    <Typography className={classes.smallTitle} color="dark">
+                        <JobTitle {...{ experience }} />
+                    </Typography>
+                </ListItem>
+            </div>
+            {!folded && (
+                <ContentFields
+                    fieldErrors={fieldErrors}
+                    id={id}
+                    formatMessage={formatMessage}
+                    experience={experience}
+                    onChange={onChange}
+                    classes={classes}
+                    index={index}
+                />
+            )}
+        </div>
+    );
+};
 const ContentFields = ({ fieldErrors, id, formatMessage, experience, onChange, classes, index }) => {
     const stillEmployed = !experience.endDate;
 
@@ -244,10 +254,10 @@ const ContentFields = ({ fieldErrors, id, formatMessage, experience, onChange, c
     ]);
 
     return (
-        <div className={classes.content}>
-            <div className={classes.line} />
+        <div className="flex items-stretch">
+            <div className={'w-[1px] bg-dark-50 mx-2'} />
             <div className={classes.fields}>
-                <div className={classes.fieldRow}>
+                <div className={'flex flex-wrap mb-1'}>
                     <div className={classes.fieldContainer}>
                         <Typography component="p" color="dark" variant="label">
                             {formatMessage(translations.companyName)}
@@ -284,8 +294,6 @@ const ContentFields = ({ fieldErrors, id, formatMessage, experience, onChange, c
                             </Typography>
                         )}
                     </div>
-                </div>
-                <div className={classes.fieldRow}>
                     <div className={classes.fieldContainer}>
                         <Typography component="p" color="dark" variant="label">
                             {formatMessage(translations.jobPlace)}
@@ -306,34 +314,35 @@ const ContentFields = ({ fieldErrors, id, formatMessage, experience, onChange, c
                         )}
                     </div>
                 </div>
-                <div className={cn(classes.fieldRow, classes.yearMonthRow)}>
-                    <div className={classes.yearMonthWrapper}>
+                <div className={'flex flex-wrap mb-1'}>
+                    {/*<div className={classes.yearMonthWrapper}>*/}
+                    <div className={classes.fieldContainer}>
+                        <YearMonth
+                            textfieldProps={{ fullWidth: true }}
+                            variant="flat"
+                            value={experience.startDate}
+                            onChange={handleStartDate}
+                            title={translations.startDate}
+                            error={fieldErrors?.startDate}
+                        />
+                    </div>
+                    {!stillEmployed && (
                         <div className={classes.fieldContainer}>
                             <YearMonth
-                                textfieldProps={{ fullWidth: true }}
                                 variant="flat"
-                                value={experience.startDate}
-                                onChange={handleStartDate}
-                                title={translations.startDate}
-                                error={fieldErrors?.startDate}
+                                value={experience.endDate}
+                                onChange={handleEndDate}
+                                title={translations.endDate}
+                                error={fieldErrors?.endDate}
                             />
                         </div>
-                        {!stillEmployed && (
-                            <div className={classes.fieldContainer}>
-                                <YearMonth
-                                    variant="flat"
-                                    value={experience.endDate}
-                                    onChange={handleEndDate}
-                                    title={translations.endDate}
-                                    error={fieldErrors?.endDate}
-                                />
-                            </div>
-                        )}
-                    </div>
-                    {stillEmployed && stillEmployedComponent}
+                    )}
+                    {stillEmployedComponent}
+
+                    {/*</div>*/}
                 </div>
-                {!stillEmployed && stillEmployedComponent}
-                <div className={classes.fieldRow}>
+
+                <div className={'flex flex-wrap'}>
                     <div className={cn(classes.fieldContainer, classes.fullWidthFieldContainer)}>
                         <Typography component="p" color="dark" variant="label">
                             {formatMessage(translations.descriptionTitle)}
@@ -361,41 +370,67 @@ const ContentFields = ({ fieldErrors, id, formatMessage, experience, onChange, c
     );
 };
 
-const SortableExperiences = SortableContainer(
-    ({
-        items = [],
-        experienceFieldChanged,
-        experienceDeleted,
-        formatMessage,
-        errors,
-        foldedState,
-        toggleFold,
-        classes
-    }) => (
-        <List component="nav">
-            {items
-                .filter(Boolean)
-                .sort(({ index: a }, { index: b }) => a - b)
-                .map((experience, index) => (
-                    <ExperienceItem
-                        index={index}
-                        key={`work_${experience.id}_${index}`}
-                        onChange={experienceFieldChanged}
-                        onRemove={experienceDeleted}
-                        id={experience.id}
-                        experience={experience}
-                        formatMessage={formatMessage}
-                        error={errors && errors[index]}
-                        folded={foldedState[experience.id]}
-                        toggleFold={toggleFold(experience.id)}
-                        classes={classes}
-                        experienceIndex={index}
-                    />
-                ))}
-        </List>
-    )
-);
+const SortableExperiences = ({
+    items = [],
+    experienceFieldChanged,
+    experienceDeleted,
+    formatMessage,
+    errors,
+    foldedState,
+    toggleFold,
+    classes,
+    onSortEnd
+}) => {
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates
+        })
+    );
 
+    const handleDragEnd = useCallback(
+        (event) => {
+            const { active, over } = event;
+
+            if (active.id !== over.id) {
+                const oldItem = items.find(({ id }) => id === active.id);
+                const newItem = items.find(({ id }) => id === over.id);
+                const oldIndex = oldItem && items.indexOf(oldItem);
+                const newIndex = newItem && items.indexOf(newItem);
+                return onSortEnd({ oldIndex, newIndex });
+            }
+        },
+        [items]
+    );
+
+    return (
+        <List component="nav">
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={items} strategy={verticalListSortingStrategy}>
+                    {items
+                        .filter(Boolean)
+                        .sort(({ index: a }, { index: b }) => a - b)
+                        .map((experience, index) => (
+                            <ExperienceItem
+                                index={index}
+                                key={`work_${experience.id}_${index}`}
+                                onChange={experienceFieldChanged}
+                                onRemove={experienceDeleted}
+                                id={experience.id}
+                                experience={experience}
+                                formatMessage={formatMessage}
+                                error={errors && errors[index]}
+                                folded={foldedState[experience.id]}
+                                toggleFold={toggleFold(experience.id)}
+                                classes={classes}
+                                experienceIndex={index}
+                            />
+                        ))}
+                </SortableContext>
+            </DndContext>
+        </List>
+    );
+};
 const StillEmployedField = ({ value, classes, handleStillEmployedChange, formatMessage }) => (
     <div
         className={cn(
@@ -440,15 +475,10 @@ const ExperiencesEditForm = ({ data, errors, onAdd, onMove, onFieldChange, onDel
     const globalError = typeof errors === 'string' && errors;
 
     return (
-        <div className={classes.container}>
+        <>
             <SortableExperiences
-                lockToContainerEdges
-                helperClass={classes.sortableHelper}
                 onSortEnd={onMove}
                 items={data}
-                distance={15}
-                useDragHandle
-                lockAxis="y"
                 experienceFieldChanged={onFieldChange}
                 experienceDeleted={onDelete}
                 {...{
@@ -464,7 +494,7 @@ const ExperiencesEditForm = ({ data, errors, onAdd, onMove, onFieldChange, onDel
                     {errors}
                 </Typography>
             )}
-        </div>
+        </>
     );
 };
 

@@ -1,19 +1,21 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import moment from 'moment';
 
 import cn from 'classnames';
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 import { useIntl } from 'react-intl';
 import { Twemoji } from 'react-emoji-render';
-import MomentUtils from '@date-io/moment';
 import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
 
-import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import { TextField, Typography } from '@welovedevs/ui';
 
 import styles from './year_month_styles';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const YearMonthComponent = ({ className, value, onChange, title, error, variant, textfieldProps = {} }) => {
     const classes = useStyles();
@@ -25,12 +27,11 @@ const YearMonthComponent = ({ className, value, onChange, title, error, variant,
                 onChange(null);
                 return;
             }
-            setIsOpen(false);
             onChange(newValue);
         },
         [onChange]
     );
-    const date = useMemo(() => (value ? new Date(value.year(), value.month()) : new Date()), [value]);
+    const date = useMemo(() => moment(value ? new Date(value.year(), value.month()) : null), [value]);
     return (
         <div className={cn(className, classes.fieldsContainer)}>
             <div className={classes.selectContainer}>
@@ -39,32 +40,42 @@ const YearMonthComponent = ({ className, value, onChange, title, error, variant,
                         <Typography
                             color="dark"
                             variant="label"
-                            component={({ children, ...props }) => <Twemoji svg text={children} {...props} />}
+                            component={({ children, ...props }) => (
+                                <Twemoji
+                                    options={{ baseUrl: '//cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/' }}
+                                    svg
+                                    text={children}
+                                    {...props}
+                                />
+                            )}
                         >
                             {formatMessage(title)}
                         </Typography>
                     )}
                 </>
-                <TextField
-                    {...textfieldProps}
-                    variant={variant}
-                    value={value?.format('MMMM YYYY') || ''}
-                    onClick={() => setIsOpen(true)}
-                />
-                <MuiPickersUtilsProvider utils={MomentUtils}>
+                <LocalizationProvider dateAdapter={AdapterMoment}>
                     <DatePicker
+                        renderInput={(params) => (
+                            <TextField
+                                {...textfieldProps}
+                                {...params}
+                                variant={variant}
+                                value={value?.format('MMMM YYYY') || ''}
+                                onClick={() => setIsOpen(true)}
+                            />
+                        )}
                         clearable
                         open={isOpen}
                         views={['year', 'month']}
-                        minDate={new Date('1980-01-01')}
-                        maxDate={new Date()}
+                        minDate={moment('1980-01-01')}
+                        maxDate={moment()}
                         className={classes.input}
                         InputProps={{ className: classes.pickerInput, disableUnderline: true }}
                         value={date}
                         onChange={onPickerChange}
                         onClose={() => setIsOpen(false)}
                     />
-                </MuiPickersUtilsProvider>
+                </LocalizationProvider>
                 {error && typeof error === 'string' && (
                     <Typography color="danger" variant="helper" component="p">
                         {error}

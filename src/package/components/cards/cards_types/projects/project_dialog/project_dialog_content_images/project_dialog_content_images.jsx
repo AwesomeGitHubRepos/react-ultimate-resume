@@ -1,6 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { createUseStyles, useTheme } from 'react-jss';
+import { useTheme } from '@mui/styles';
+import makeStyles from '@mui/styles/makeStyles';
+
 import { AnimatePresence, motion } from 'framer-motion';
 import Carousel, { Modal, ModalGateway } from 'react-images';
 
@@ -15,7 +17,7 @@ import { getColorsFromCardVariant, getHexFromPaletteColor } from '../../../../..
 import { hashCode } from '../../../../../../utils/string_utils';
 import { DEFAULT_SPRING_TYPE as spring } from '../../../../../../utils/framer_motion/common_types/spring_type';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const ProjectDialogContentImagesComponent = ({ images = [], isEditing }) => {
     const classes = useStyles();
@@ -85,7 +87,7 @@ const ProjectDialogContentImagesComponent = ({ images = [], isEditing }) => {
                         styles={{
                             blanket: (base) => ({ ...base, zIndex: 2100 }),
                             positioner: (base) => ({ ...base, zIndex: 2110 }),
-                            dialog: (base) => ({ ...base, zIndex: 2120, fontFamily: 'Avenir Next' })
+                            dialog: (base) => ({ ...base, zIndex: 2120, fontFamily: 'Plus Jakarta Sans' })
                         }}
                     >
                         <Carousel

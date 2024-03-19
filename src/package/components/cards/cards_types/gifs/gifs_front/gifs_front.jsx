@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from '
 
 import cn from 'classnames';
 import { FormattedMessage } from 'react-intl';
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { Typography } from '@welovedevs/ui';
 import { ProfileCardActions } from '../../../../commons/profile_card/profile_card_actions/profile_card_actions';
@@ -16,10 +16,9 @@ import { ProfileCardPaddedFront } from '../../../../commons/profile_card/profile
 import { SIDES } from '../../../../commons/profile_card/profile_card_side/side';
 
 import { styles } from './gifs_front_styles';
-import { existsAndNotEmpty } from '../../../utils/exists_and_not_empty';
 import { NoDataButton } from '../../../../commons/no_data_button/no_data_button';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 const GifsFrontComponent = ({ data, handleAddButtonClick }) => {
     const classes = useStyles();
@@ -32,7 +31,8 @@ const GifsFrontComponent = ({ data, handleAddButtonClick }) => {
 
     const { gifUrl, name, gifUser } = data.interests?.[0] ?? {};
 
-    const hasHobby = useMemo(() => existsAndNotEmpty(data?.interests), [data]);
+    const hasMoreThanOneHobby = useMemo(() => (data?.interests?.length ?? 0) > 1, [data]);
+    const hasHobby = useMemo(() => (data?.interests?.length ?? 0) > 0, [data]);
 
     return (
         <GifsSidesCommons
@@ -47,7 +47,7 @@ const GifsFrontComponent = ({ data, handleAddButtonClick }) => {
                     <Content {...{ hasHobby, name, handleAddButtonClick, classes }} />
                 </ProfileCardPaddedFront>
             )}
-            {hasHobby && (
+            {hasMoreThanOneHobby && (
                 <ProfileCardActions>
                     <ProfileCardButton onClick={handleButtonClick} overrideColor="light">
                         <FormattedMessage id="Gifs.front.action" defaultMessage="See all hobbies" />

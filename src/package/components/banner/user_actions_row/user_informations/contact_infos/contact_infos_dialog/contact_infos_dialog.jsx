@@ -1,12 +1,14 @@
 /* eslint no-unused-vars: 0 */
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 
-import { createUseStyles, useTheme } from 'react-jss';
+import { useTheme } from "@mui/styles";
+import makeStyles from '@mui/styles/makeStyles';
+
 import { FormattedMessage } from 'react-intl';
 
 import set from 'lodash/set';
 
-import { Dialog, DialogContent, DialogActions, useMediaQuery } from '@material-ui/core';
+import { Dialog, DialogContent, DialogActions, useMediaQuery } from '@mui/material';
 
 import { Button, Typography } from '@welovedevs/ui';
 import { DialogTitle } from '../../../../../commons/dialog/dialog_title/dialog_title';
@@ -16,7 +18,7 @@ import { ContactInfosDialogTextFields } from './contact_infos_dialog_textfields/
 import { styles } from './contact_infos_dialog_styles';
 import { CONTACT_INFOS_DATA } from '../contact_infos_data';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 export const ContactInfosDialog = ({ open, onClose, contactInformations }) => {
     const { onEdit } = useContext(DeveloperProfileContext);

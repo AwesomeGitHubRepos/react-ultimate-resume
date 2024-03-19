@@ -1,4 +1,4 @@
-import { secondary } from '@welovedevs/ui/styles';
+import { secondary } from '@welovedevs/ui';
 
 export const styles = (theme) => {
     const {
@@ -23,9 +23,6 @@ export const styles = (theme) => {
             height: 24,
             marginRight: spacing,
             cursor: 'pointer'
-        },
-        sortableHelper: {
-            zIndex: 10000000000
         },
         dragHandleButton: {
             display: 'flex'

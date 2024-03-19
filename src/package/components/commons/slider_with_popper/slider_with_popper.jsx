@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import cn from 'classnames';
-import { createUseStyles } from 'react-jss';
+import makeStyles from '@mui/styles/makeStyles';
 
 import { PopperCard, Slider } from '@welovedevs/ui';
 
 import { styles } from './slider_with_popper_styles';
 
-const useStyles = createUseStyles(styles);
+const useStyles = makeStyles(styles);
 
 export const SliderWithPopper = ({
     color,
@@ -38,7 +38,7 @@ export const SliderWithPopper = ({
 
     const handleChange = useCallback(
         (e) => {
-            e.persist();
+            // e.persist();
             const newValue = e.target.value;
             if (timer.current) {
                 clearTimeout(timer.current);
@@ -74,14 +74,14 @@ export const SliderWithPopper = ({
                     anchorElement={thumbReference.current}
                     popperProps={{
                         disablePortal: true,
-                        modifiers: {
-                            preventOverflow: {
-                                boundariesElement: 'viewport'
+                        modifiers: [
+                            {
+                                name: 'preventOverflow'
                             },
-                            hide: {
-                                enabled: false
+                            {
+                                name: 'hide'
                             }
-                        }
+                        ]
                     }}
                     {...popperCardProps}
                 >
